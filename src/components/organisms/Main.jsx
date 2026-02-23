@@ -1,12 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import bgSmall from "../../assets/images/bg-today-small.svg";
 import axios from "axios";
+import { weatherCodeToIcon } from "../../functions/helper";
 
 export default function Main() {
-  const [search, setSearch] = useState("");
-  const [searchedLocation, setSearchedLocation] = useState(null);
-  const [weatherData, setWeatherData] = useState(null);
-  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [search, setSearch] = useState(""); // controlled input value
+  const [searchedLocation, setSearchedLocation] = useState(null); // location object selected from suggestions
+  const [weatherData, setWeatherData] = useState(null); // weather data for selected location
+  const [locationSuggestions, setLocationSuggestions] = useState([]); // list of location suggestions based on search input
   const debounceTimeout = useRef(null);
 
   //   HANDLE FORM SUBMISSION
@@ -23,6 +24,7 @@ export default function Main() {
     if (selectedLocation) {
       setSearchedLocation(selectedLocation);
     } else {
+      // TODO togliere l'alert e inserire un messaggio di errore sotto il campo di ricerca
       alert("Please select a valid location from the suggestions.");
     }
   }
@@ -33,7 +35,10 @@ export default function Main() {
       .get(
         `https://api.open-meteo.com/v1/forecast?latitude=${searchedLocation?.latitude || 45.46}&longitude=${searchedLocation?.longitude || 9.18}&daily=temperature_2m_min,temperature_2m_max,weather_code&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code`,
       )
-      .then((res) => setWeatherData(res.data));
+      .then((res) => {
+        setWeatherData(res.data);
+        setSearch("");
+      });
   }, [searchedLocation]);
 
   //   FETCH LOCATION SUGGESTIONS
@@ -65,10 +70,10 @@ export default function Main() {
   }, [search]);
 
   return (
-    <main className="bg-bg min-h-screen text-neutral-0 font-dm-sans">
+    <main className="bg-neutral-900 min-h-screen text-neutral-0 font-dm-sans">
       <div className="container">
         {/* HERO */}
-        <h1 className="text-6xl font-semibold text-center leading-17.5 py-11.25 font-bricolage">
+        <h1 className="text-6xl font-semibold text-center leading-17.5 py-11.25 font-bricolage px-4">
           How's the sky looking today?
         </h1>
 
@@ -109,23 +114,90 @@ export default function Main() {
 
         {/* TODAY */}
         {weatherData && (
-          <div
-            className="text-center pt-11 pb-14 bg-no-repeat my-8 bg-cover rounded-3xl"
-            style={{ backgroundImage: `url(${bgSmall})` }}
-          >
-            <h2 className="text-2xl font-semibold mb-4">
-              {searchedLocation
-                ? `${searchedLocation.name}, ${searchedLocation.postcodes ? searchedLocation.postcodes[0] : ""}, ${searchedLocation.country}`
-                : "Milan, Italy"}
-            </h2>
-            <p className="text-lg text-neutral-200 mb-9">
-              {weatherData.current.time.toLocaleString()}
-            </p>
-            <p className="italic font-bold text-7xl">
-              {weatherData.current.temperature_2m}
-              {weatherData.current_units.temperature_2m}
-            </p>
-          </div>
+          <>
+            {/* MAIN WEATHER CARD */}
+            <div
+              className="text-center pt-11 pb-14 bg-no-repeat my-8 bg-cover rounded-3xl px-2"
+              style={{ backgroundImage: `url(${bgSmall})` }}
+            >
+              {/* Location */}
+              <h2 className="text-2xl font-semibold mb-4">
+                {searchedLocation
+                  ? `${searchedLocation.name}${searchedLocation.postcodes ? `, ${searchedLocation.postcodes[0]}` : ""}, ${searchedLocation.country}`
+                  : "Milan, Italy"}
+              </h2>
+
+              {/* Date */}
+              <p className="text-lg text-neutral-200 mb-9">
+                {(() => {
+                  const dateStr = weatherData.current.time;
+                  const date = new Date(dateStr);
+                  return date.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  });
+                })()}
+              </p>
+
+              {/* Icon and temperature */}
+              <div className="flex justify-center items-center gap-8">
+                <img
+                  src={weatherCodeToIcon(weatherData.current.weather_code)}
+                  alt={weatherCodeToIcon(weatherData.current.weather_code)}
+                  className="w-24"
+                />
+                <p className="italic font-bold text-7xl">
+                  {weatherData.current.temperature_2m}
+                  {weatherData.current_units.temperature_2m}
+                </p>
+              </div>
+            </div>
+
+            {/* SECONDARY WEATHER INFO */}
+            <div className="grid grid-cols-2 my-9 gap-4">
+              <div className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-5">
+                <h4 className="font-bricolage text-neutral-200 text-2xl">
+                  Feels Like
+                </h4>
+                <p className="font-light text-4xl">
+                  {weatherData.current.apparent_temperature}
+                  {weatherData.current_units.apparent_temperature}
+                </p>
+              </div>
+              <div className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-5">
+                <h4 className="font-bricolage text-neutral-200 text-2xl">
+                  Humidity
+                </h4>
+                <p className="font-light text-4xl">
+                  {weatherData.current.relative_humidity_2m}
+                  {weatherData.current_units.relative_humidity_2m}
+                </p>
+              </div>
+              <div className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-5">
+                <h4 className="font-bricolage text-neutral-200 text-2xl">
+                  Wind
+                </h4>
+                <p className="font-light text-4xl">
+                  {weatherData.current.wind_speed_10m}{" "}
+                  {weatherData.current_units.wind_speed_10m}
+                </p>
+              </div>
+              <div className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-5">
+                <h4 className="font-bricolage text-neutral-200 text-2xl">
+                  Precipitation
+                </h4>
+                <p className="font-light text-4xl">
+                  {weatherData.current.precipitation}{" "}
+                  {weatherData.current_units.precipitation}
+                </p>
+              </div>
+            </div>
+
+            {/* DAILY FORECAST */}
+            <div className="h-4"></div>
+          </>
         )}
       </div>
     </main>
