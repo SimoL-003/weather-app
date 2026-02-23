@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import bgSmall from "../../assets/images/bg-today-small.svg";
 import axios from "axios";
-import { weatherCodeToIcon } from "../../functions/helper";
-import SecondaryWeatherInfo from "../atoms/SecondaryWeatherInfo";
-import getHourlyWeather from "../../functions/getHourlyWeather";
-import HourlyWeather from "../atoms/HourlyWeather";
-import getDailyWeather from "../../functions/getDailyWeather";
-import DailyWeatherCard from "../atoms/DailyWeatherCard";
+import getHourlyWeather from "../functions/getHourlyWeather";
+import HourlyWeather from "./atoms/HourlyWeather";
+import getDailyWeather from "../functions/getDailyWeather";
+import MainWeatherCard from "./organisms/MainWeatherCard";
+import WeatherInfoGrid from "./organisms/WeatherInfoGrid";
+import DailyForecast from "./organisms/DailyForecast";
 
 export default function Main() {
   const [search, setSearch] = useState(""); // controlled input value
@@ -140,92 +139,15 @@ export default function Main() {
             <section className="flex flex-col lg:flex-row gap-6 lg:gap-12 mt-8">
               <div className="w-full lg:w-4/5">
                 {/* MAIN WEATHER CARD */}
-                <div
-                  className="main-weather-bg text-center pt-11 pb-14 bg-no-repeat my-8 bg-cover rounded-3xl px-2 lg:flex lg:items-center lg:justify-between lg:gap-16 lg:px-10 lg:mt-0"
-                  style={{ backgroundImage: `url(${bgSmall})` }}
-                >
-                  <div className="lg:flex lg:flex-col lg:items-start lg:justify-center text-center lg:text-left lg:gap-3">
-                    {/* Location */}
-                    <h2 className="text-2xl font-semibold mb-4 lg:mb-0">
-                      {searchedLocation
-                        ? `${searchedLocation.name}${searchedLocation.postcodes ? `, ${searchedLocation.postcodes[0]}` : ""}, ${searchedLocation.country}`
-                        : "Milan, Italy"}
-                    </h2>
-
-                    {/* Date */}
-                    <p className="text-lg text-neutral-200 mb-9 lg:mb-0">
-                      {(() => {
-                        const dateStr = weatherData.current.time;
-                        const date = new Date(dateStr);
-                        return date.toLocaleDateString("en-US", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        });
-                      })()}
-                    </p>
-                  </div>
-
-                  {/* Icon and temperature */}
-                  <div className="flex justify-center items-center gap-8 lg:gap-10 mt-8 lg:mt-0">
-                    <img
-                      src={weatherCodeToIcon(weatherData.current.weather_code)}
-                      alt={weatherCodeToIcon(weatherData.current.weather_code)}
-                      className="w-24"
-                    />
-                    <p className="italic font-bold text-7xl">
-                      {Math.floor(weatherData.current.temperature_2m)}
-                      {weatherData.current_units.temperature_2m}
-                    </p>
-                  </div>
-                </div>
-
+                <MainWeatherCard
+                  searchedLocation={searchedLocation}
+                  weatherData={weatherData}
+                />
                 {/* SECONDARY WEATHER INFO */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 my-9 gap-4 lg:gap-6">
-                  {/* Apparent temperature */}
-                  <SecondaryWeatherInfo
-                    title={"Feels Like"}
-                    data={weatherData.current.apparent_temperature}
-                    temperature={weatherData.current_units.apparent_temperature}
-                  />
-                  {/* Relative humidity */}
-                  <SecondaryWeatherInfo
-                    title={"Humidity"}
-                    data={weatherData.current.relative_humidity_2m}
-                    temperature={weatherData.current_units.relative_humidity_2m}
-                  />
-                  {/* Wind speed */}
-                  <SecondaryWeatherInfo
-                    title={"Wind Speed"}
-                    data={weatherData.current.wind_speed_10m}
-                    temperature={weatherData.current_units.wind_speed_10m}
-                  />
-                  {/* Precipitation */}
-                  <SecondaryWeatherInfo
-                    title={"Precipitation"}
-                    data={weatherData.current.precipitation}
-                    temperature={weatherData.current_units.precipitation}
-                  />
-                </div>
+                <WeatherInfoGrid weatherData={weatherData} />
 
                 {/* DAILY FORECAST */}
-                <div>
-                  <h2 className="font-semibold text-2xl">Daily forecast</h2>
-                  <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-7 gap-4 lg:gap-4 py-4">
-                    {dailyWeather &&
-                      dailyWeather.map((day, index) => (
-                        <DailyWeatherCard
-                          key={index}
-                          weatherCode={day.weather_code}
-                          day={day.time}
-                          minTemp={day.temperature_2m_min}
-                          maxTemp={day.temperature_2m_max}
-                          tempUnit={day.temperature_2m_unit}
-                        />
-                      ))}
-                  </div>
-                </div>
+                <DailyForecast dailyWeather={dailyWeather} />
               </div>
 
               {/* HOURLY FORECAST */}

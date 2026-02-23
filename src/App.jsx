@@ -1,5 +1,5 @@
 import Header from "./components/organisms/Header";
-import Main from "./components/organisms/Main";
+import Main from "./components/Main";
 
 function App() {
   return (
