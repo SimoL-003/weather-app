@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import bgSmall from "../../assets/images/bg-today-small.svg";
 import axios from "axios";
 import { weatherCodeToIcon } from "../../functions/helper";
+import SecondaryWeatherInfo from "../atoms/SecondaryWeatherInfo";
 
 export default function Main() {
   const [search, setSearch] = useState(""); // controlled input value
@@ -157,42 +158,26 @@ export default function Main() {
 
             {/* SECONDARY WEATHER INFO */}
             <div className="grid grid-cols-2 my-9 gap-4">
-              <div className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-5">
-                <h4 className="font-bricolage text-neutral-200 text-2xl">
-                  Feels Like
-                </h4>
-                <p className="font-light text-4xl">
-                  {weatherData.current.apparent_temperature}
-                  {weatherData.current_units.apparent_temperature}
-                </p>
-              </div>
-              <div className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-5">
-                <h4 className="font-bricolage text-neutral-200 text-2xl">
-                  Humidity
-                </h4>
-                <p className="font-light text-4xl">
-                  {weatherData.current.relative_humidity_2m}
-                  {weatherData.current_units.relative_humidity_2m}
-                </p>
-              </div>
-              <div className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-5">
-                <h4 className="font-bricolage text-neutral-200 text-2xl">
-                  Wind
-                </h4>
-                <p className="font-light text-4xl">
-                  {weatherData.current.wind_speed_10m}{" "}
-                  {weatherData.current_units.wind_speed_10m}
-                </p>
-              </div>
-              <div className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-5">
-                <h4 className="font-bricolage text-neutral-200 text-2xl">
-                  Precipitation
-                </h4>
-                <p className="font-light text-4xl">
-                  {weatherData.current.precipitation}{" "}
-                  {weatherData.current_units.precipitation}
-                </p>
-              </div>
+              {/* Apparent temperature */}
+              <SecondaryWeatherInfo
+                data={weatherData.current.apparent_temperature}
+                temperature={weatherData.current_units.apparent_temperature}
+              />
+              {/* Relative humidity */}
+              <SecondaryWeatherInfo
+                data={weatherData.current.relative_humidity_2m}
+                temperature={weatherData.current_units.relative_humidity_2m}
+              />
+              {/* Wind speed */}
+              <SecondaryWeatherInfo
+                data={weatherData.current.wind_speed_10m}
+                temperature={weatherData.current_units.wind_speed_10m}
+              />
+              {/* Precipitation */}
+              <SecondaryWeatherInfo
+                data={weatherData.current.precipitation}
+                temperature={weatherData.current_units.precipitation}
+              />
             </div>
 
             {/* DAILY FORECAST */}
