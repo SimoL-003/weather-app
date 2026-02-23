@@ -1,4 +1,4 @@
-function getHourlyWeather(hourlyData) {
+function getHourlyWeather(hourlyData, hourlyUnits) {
   // Get the current hour
   const currentHour = new Date().getHours();
 
@@ -20,6 +20,7 @@ function getHourlyWeather(hourlyData) {
     hourlyWeather.push({
       time: hourlyData.time[i],
       temperature_2m: hourlyData.temperature_2m[i],
+      temperature_2m_unit: hourlyUnits.temperature_2m,
       weather_code: hourlyData.weather_code[i],
     });
   }

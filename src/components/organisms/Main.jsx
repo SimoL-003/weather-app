@@ -4,6 +4,7 @@ import axios from "axios";
 import { weatherCodeToIcon } from "../../functions/helper";
 import SecondaryWeatherInfo from "../atoms/SecondaryWeatherInfo";
 import getHourlyWeather from "../../functions/getHourlyWeather";
+import HourlyWeather from "../atoms/HourlyWeather";
 
 export default function Main() {
   const [search, setSearch] = useState(""); // controlled input value
@@ -73,7 +74,7 @@ export default function Main() {
 
   // Get hourly weather data for the next 24 hours starting from the current hour
   const hourlyWeather = weatherData
-    ? getHourlyWeather(weatherData.hourly)
+    ? getHourlyWeather(weatherData.hourly, weatherData.hourly_units)
     : null;
 
   return (
@@ -196,28 +197,13 @@ export default function Main() {
 
               {hourlyWeather &&
                 hourlyWeather.map((hour, index) => (
-                  <div
+                  <HourlyWeather
                     key={index}
-                    className="flex justify-between items-center bg-neutral-700 border border-neutral-600 pr-3 rounded-2xl my-2"
-                  >
-                    <p className="font-medium text-2xl flex items-center gap-2">
-                      <span>
-                        {/* Icon */}
-                        <img
-                          src={weatherCodeToIcon(hour.weather_code)}
-                          alt="Weather icon"
-                          className="w-16"
-                        />
-                      </span>
-                      {/* Time */}
-                      {new Date(hour.time).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        hour12: false,
-                      })}
-                    </p>
-                    {/* Temperature */}
-                    <p className="text-xl">{hour.temperature_2m}°</p>
-                  </div>
+                    weather_code={hour.weather_code}
+                    temperature={hour.temperature_2m}
+                    temperature_unit={hour.temperature_2m_unit}
+                    time={hour.time}
+                  />
                 ))}
             </div>
           </>
