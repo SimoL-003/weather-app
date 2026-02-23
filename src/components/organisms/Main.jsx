@@ -6,6 +6,7 @@ import SecondaryWeatherInfo from "../atoms/SecondaryWeatherInfo";
 import getHourlyWeather from "../../functions/getHourlyWeather";
 import HourlyWeather from "../atoms/HourlyWeather";
 import getDailyWeather from "../../functions/getDailyWeather";
+import DailyWeatherCard from "../atoms/DailyWeatherCard";
 
 export default function Main() {
   const [search, setSearch] = useState(""); // controlled input value
@@ -223,42 +224,15 @@ export default function Main() {
               <div className="grid grid-cols-3 gap-4 py-4">
                 {dailyWeather &&
                   dailyWeather.map((day, index) => (
-                    <div
+                    <DailyWeatherCard
                       key={index}
-                      className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-2"
-                    >
-                      <p className="text-center text-xl font-semibold">
-                        {new Date(day.time).toLocaleDateString("en-US", {
-                          weekday: "short",
-                        })}
-                      </p>
-                      <img
-                        src={weatherCodeToIcon(day.weather_code)}
-                        alt="Weather icon"
-                      />
-                      <p className="flex justify-between text-xl">
-                        <span>
-                          {day.temperature_2m_min}
-                          {day.temperature_2m_unit}
-                        </span>{" "}
-                        <span>
-                          {day.temperature_2m_max}
-                          {day.temperature_2m_unit}
-                        </span>
-                      </p>
-                    </div>
+                      weatherCode={day.weather_code}
+                      day={day.time}
+                      minTemp={day.temperature_2m_min}
+                      maxTemp={day.temperature_2m_max}
+                      tempUnit={day.temperature_2m_unit}
+                    />
                   ))}
-
-                {/* <div className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-2">
-                  <p className="text-center text-xl font-semibold">Tue</p>
-                  <img
-                    src={weatherCodeToIcon(weatherData.daily.weather_code[0])}
-                    alt="Weather icon"
-                  />
-                  <p className="flex justify-between text-xl">
-                    <span>Min</span> <span>Max</span>
-                  </p>
-                </div> */}
               </div>
             </div>
           </>

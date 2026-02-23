@@ -19,7 +19,7 @@ export default function getDailyWeather(dailyData, dailyUnits) {
       time: dailyData.time[i],
       temperature_2m_min: dailyData.temperature_2m_min[i],
       temperature_2m_max: dailyData.temperature_2m_max[i],
-      temperature_2m_unit: dailyUnits.temperature_2m,
+      temperature_2m_unit: dailyUnits.temperature_2m_min, // Assuming both min and max have the same unit
       weather_code: dailyData.weather_code[i],
     });
   }
