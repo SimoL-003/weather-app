@@ -5,6 +5,7 @@ import { weatherCodeToIcon } from "../../functions/helper";
 import SecondaryWeatherInfo from "../atoms/SecondaryWeatherInfo";
 import getHourlyWeather from "../../functions/getHourlyWeather";
 import HourlyWeather from "../atoms/HourlyWeather";
+import getDailyWeather from "../../functions/getDailyWeather";
 
 export default function Main() {
   const [search, setSearch] = useState(""); // controlled input value
@@ -75,6 +76,11 @@ export default function Main() {
   // Get hourly weather data for the next 24 hours starting from the current hour
   const hourlyWeather = weatherData
     ? getHourlyWeather(weatherData.hourly, weatherData.hourly_units)
+    : null;
+
+  // Get daily weather data for the next 7 days starting from today
+  const dailyWeather = weatherData
+    ? getDailyWeather(weatherData.daily, weatherData.daily_units)
     : null;
 
   return (
@@ -205,6 +211,55 @@ export default function Main() {
                     time={hour.time}
                   />
                 ))}
+            </div>
+          </>
+        )}
+
+        {/* DAILY FORECAST */}
+        {weatherData && (
+          <>
+            <div>
+              <h2 className="font-semibold text-2xl">Daily forecast</h2>
+              <div className="grid grid-cols-3 gap-4 py-4">
+                {dailyWeather &&
+                  dailyWeather.map((day, index) => (
+                    <div
+                      key={index}
+                      className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-2"
+                    >
+                      <p className="text-center text-xl font-semibold">
+                        {new Date(day.time).toLocaleDateString("en-US", {
+                          weekday: "short",
+                        })}
+                      </p>
+                      <img
+                        src={weatherCodeToIcon(day.weather_code)}
+                        alt="Weather icon"
+                      />
+                      <p className="flex justify-between text-xl">
+                        <span>
+                          {day.temperature_2m_min}
+                          {day.temperature_2m_unit}
+                        </span>{" "}
+                        <span>
+                          {day.temperature_2m_max}
+                          {day.temperature_2m_unit}
+                        </span>
+                      </p>
+                    </div>
+                  ))}
+
+                {/* <div className="bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-2">
+                  <p className="text-center text-xl font-semibold">Tue</p>
+                  <img
+                    src={weatherCodeToIcon(weatherData.daily.weather_code[0])}
+                    alt="Weather icon"
+                  />
+                  <p className="flex justify-between text-xl">
+                    <span>Min</span> <span>Max</span>
+                  </p>
+                </div> */}
+              </div>
             </div>
           </>
         )}
