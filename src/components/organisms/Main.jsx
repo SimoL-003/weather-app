@@ -3,6 +3,7 @@ import bgSmall from "../../assets/images/bg-today-small.svg";
 import axios from "axios";
 import { weatherCodeToIcon } from "../../functions/helper";
 import SecondaryWeatherInfo from "../atoms/SecondaryWeatherInfo";
+import getHourlyWeather from "../../functions/getHourlyWeather";
 
 export default function Main() {
   const [search, setSearch] = useState(""); // controlled input value
@@ -69,6 +70,11 @@ export default function Main() {
     }, 500);
     return () => clearTimeout(debounceTimeout.current);
   }, [search]);
+
+  // Get hourly weather data for the next 24 hours starting from the current hour
+  const hourlyWeather = weatherData
+    ? getHourlyWeather(weatherData.hourly)
+    : null;
 
   return (
     <main className="bg-neutral-900 min-h-screen text-neutral-0 font-dm-sans">
@@ -184,8 +190,36 @@ export default function Main() {
               />
             </div>
 
-            {/* DAILY FORECAST */}
-            <div className="h-4"></div>
+            {/* HOURLY FORECAST */}
+            <div className="my-8 bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center gap-5">
+              <h2 className="font-semibold text-2xl">Hourly forecast</h2>
+
+              {hourlyWeather &&
+                hourlyWeather.map((hour, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center bg-neutral-700 border border-neutral-600 pr-3 rounded-2xl my-2"
+                  >
+                    <p className="font-medium text-2xl flex items-center gap-2">
+                      <span>
+                        {/* Icon */}
+                        <img
+                          src={weatherCodeToIcon(hour.weather_code)}
+                          alt="Weather icon"
+                          className="w-16"
+                        />
+                      </span>
+                      {/* Time */}
+                      {new Date(hour.time).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        hour12: false,
+                      })}
+                    </p>
+                    {/* Temperature */}
+                    <p className="text-xl">{hour.temperature_2m}°</p>
+                  </div>
+                ))}
+            </div>
           </>
         )}
       </div>
