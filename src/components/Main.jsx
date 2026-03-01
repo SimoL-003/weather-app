@@ -12,32 +12,40 @@ export default function Main() {
   const [searchedLocation, setSearchedLocation] = useState(null); // location object selected from suggestions
   const [weatherData, setWeatherData] = useState(null); // weather data for selected location
   const [locationSuggestions, setLocationSuggestions] = useState([]); // list of location suggestions based on search input
+  const [selectedSuggestion, setSelectedSuggestion] = useState(null); // location object corresponding to the current input value (if it matches a suggestion)
   const debounceTimeout = useRef(null);
 
   //   HANDLE FORM SUBMISSION
   function handleSubmit(e) {
     e.preventDefault();
-    const selectedLocation = locationSuggestions.find((loc) => {
-      const postcode =
-        loc.postcodes && loc.postcodes.length > 0
-          ? `, ${loc.postcodes[0]}`
-          : "";
-      const suggestionString = `${loc.name}${postcode}, ${loc.country}`;
-      return suggestionString === search.trim();
-    });
-    if (selectedLocation) {
-      setSearchedLocation(selectedLocation);
+    if (selectedSuggestion) {
+      setSearchedLocation(selectedSuggestion);
     } else {
       // TODO togliere l'alert e inserire un messaggio di errore sotto il campo di ricerca
       alert("Please select a valid location from the suggestions.");
     }
   }
 
+  // HANDLE SEARCH INPUT CHANGE
+  function handleInputChange(e) {
+    setSearch(e.target.value);
+    // Cerca se il valore corrisponde a una delle opzioni
+    const match = locationSuggestions.find((loc) => {
+      const postcode =
+        loc.postcodes && loc.postcodes.length > 0
+          ? `, ${loc.postcodes[0]}`
+          : "";
+      const suggestionString = `${loc.name}${postcode}, ${loc.country}`;
+      return suggestionString === e.target.value;
+    });
+    setSelectedSuggestion(match || null);
+  }
+
   //   FETCH WEATHER DATA FOR SELECTED LOCATION (default to Milan if no location selected)
   useEffect(() => {
     axios
       .get(
-        `https://api.open-meteo.com/v1/forecast?latitude=${searchedLocation?.latitude || 45.46}&longitude=${searchedLocation?.longitude || 9.18}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch`,
+        `https://api.open-meteo.com/v1/forecast?latitude=${searchedLocation?.latitude || 45.46}&longitude=${searchedLocation?.longitude || 9.18}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&timezone=auto&wind_speed_unit=mph&temperature_unit=celsius&precipitation_unit=inch`,
       )
       .then((res) => {
         setWeatherData(res.data);
@@ -106,7 +114,7 @@ export default function Main() {
               id="search"
               name="search"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleInputChange}
               placeholder="Search for a place..."
               className="bg-neutral-600 py-4 px-5 tracking-wider text-lg rounded-2xl placeholder:text-neutral-200 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               list="location-suggestions"
