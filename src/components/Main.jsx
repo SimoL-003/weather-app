@@ -163,7 +163,7 @@ export default function Main() {
               </div>
 
               {/* HOURLY FORECAST */}
-              <div className="my-8 lg:my-0 bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center lg:justify-start lg:gap-3 w-full lg:w-1/5 min-w-55 lg:max-h-150 overflow-y-auto">
+              <div className="my-8 lg:my-0 bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center lg:justify-start lg:gap-3 w-full lg:w-1/5 min-w-55 lg:max-h-150 overflow-y-auto hide-scrollbar-desktop">
                 <h2 className="font-semibold text-2xl">Hourly forecast</h2>
 
                 {hourlyWeather &&
