@@ -13,6 +13,7 @@ export default function Main() {
   const [weatherData, setWeatherData] = useState(null); // weather data for selected location
   const [locationSuggestions, setLocationSuggestions] = useState([]); // list of location suggestions based on search input
   const [selectedSuggestion, setSelectedSuggestion] = useState(null); // location object corresponding to the current input value (if it matches a suggestion)
+  const [searchError, setSearchError] = useState(""); // error message to display if user input doesn't match any suggestion
   const debounceTimeout = useRef(null);
 
   //   HANDLE FORM SUBMISSION
@@ -20,9 +21,9 @@ export default function Main() {
     e.preventDefault();
     if (selectedSuggestion) {
       setSearchedLocation(selectedSuggestion);
+      setSearchError("");
     } else {
-      // TODO togliere l'alert e inserire un messaggio di errore sotto il campo di ricerca
-      alert("Please select a valid location from the suggestions.");
+      setSearchError("Select a valid location from the suggestions.");
     }
   }
 
@@ -45,7 +46,7 @@ export default function Main() {
   useEffect(() => {
     axios
       .get(
-        `https://api.open-meteo.com/v1/forecast?latitude=${searchedLocation?.latitude || 45.46}&longitude=${searchedLocation?.longitude || 9.18}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&timezone=auto&wind_speed_unit=mph&temperature_unit=celsius&precipitation_unit=inch`,
+        `https://api.open-meteo.com/v1/forecast?latitude=${searchedLocation?.latitude || 45.46}&longitude=${searchedLocation?.longitude || 9.18}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&timezone=auto&wind_speed_unit=kmh&temperature_unit=celsius&precipitation_unit=mm`,
       )
       .then((res) => {
         setWeatherData(res.data);
@@ -98,7 +99,6 @@ export default function Main() {
         <h1 className="text-5xl font-semibold text-center leading-tight py-8 lg:py-12 font-bricolage px-2 lg:px-4">
           How's the sky looking today?
         </h1>
-
         {/* SEARCH FORM */}
         <form
           onSubmit={handleSubmit}
@@ -139,8 +139,12 @@ export default function Main() {
           <button className="bg-blue-500 py-4 font-semibold tracking-wide text-lg rounded-2xl lg:w-1/5 hover:bg-blue-700 transition-colors">
             Search
           </button>
-        </form>
-
+        </form>{" "}
+        {searchError && (
+          <p className="text-red-500 text-sm mt-2 max-w-xl lg:max-w-2xl mx-auto">
+            {searchError}
+          </p>
+        )}
         {weatherData && (
           <>
             {/* WEATHER INFO */}
@@ -159,7 +163,7 @@ export default function Main() {
               </div>
 
               {/* HOURLY FORECAST */}
-              <div className="my-8 lg:my-0 bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center lg:justify-start gap-5 lg:gap-3 w-full lg:w-1/5 min-w-55 lg:max-h-150 overflow-y-auto">
+              <div className="my-8 lg:my-0 bg-neutral-800 px-5 py-8 rounded-2xl border border-neutral-600 flex flex-col justify-center lg:justify-start lg:gap-3 w-full lg:w-1/5 min-w-55 lg:max-h-150 overflow-y-auto">
                 <h2 className="font-semibold text-2xl">Hourly forecast</h2>
 
                 {hourlyWeather &&
